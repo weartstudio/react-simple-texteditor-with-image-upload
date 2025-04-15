@@ -4,9 +4,9 @@ import { Editor, EditorProvider } from "react-simple-wysiwyg";
 const App = () => {
 	const [html, setHtml] = useState("<p>Szerkeszd itt a tartalmat</p>");
 	const editorWrapperRef = useRef(null);
-	const editableRef = useRef(null); // tartalmazza majd a belső szerkesztő DOM elemet
+	const editableRef = useRef(null);
 
-	// Betöltés után keressük meg a contentEditable mezőt
+	// load után a editor betöltése refbe
 	useEffect(() => {
 		if (editorWrapperRef.current) {
 			const editable = editorWrapperRef.current.querySelector('[contenteditable="true"]');
@@ -14,10 +14,12 @@ const App = () => {
 		}
 	}, []);
 
+	// tartalom mentése
 	const handleHtmlChange = (e) => {
 		setHtml(e.target.value);
 	};
 
+	// kép felötlés kezelése (base64)
 	const handleImageUpload = (e) => {
 		const file = e.target.files[0];
 		if (!file) return;
@@ -25,15 +27,15 @@ const App = () => {
 		const reader = new FileReader();
 		reader.onloadend = () => {
 			const base64 = reader.result;
-			const imgTag = `<img src="${base64}" alt="Uploaded Image" style="max-width: 100%; margin-top: 1em;" />`;
+			const imgTag = `<img src="${base64}" alt="Feltöltött kép" style="max-width: 100%; margin-top: 1em;" />`;
 			setHtml((prevHtml) => prevHtml + imgTag);
 		};
 		reader.readAsDataURL(file);
 	};
 
-	// Művelet futtatása a belső editoron
+	// formázások végrehajtása
 	const exec = (command, value = null) => {
-		editableRef.current?.focus(); // fókusz kell a parancs futtatásához
+		editableRef.current?.focus();
 		document.execCommand(command, false, value);
 	};
 
@@ -44,19 +46,19 @@ const App = () => {
 					<i class="bi bi-pen"></i> Szövegszerkesztő
 				</h3>
 
-				{/* 🛠 Toolbar */}
+				{/* Formázások */}
 				<div className="toolbar">
-					{/* bold */}
+					{/* félkövér */}
 					<button onClick={() => exec("bold")}>
 						<i class="bi bi-type-bold"></i>
 					</button>
 
-					{/* italic */}
+					{/* dőlt */}
 					<button onClick={() => exec("italic")}>
 						<i class="bi bi-type-italic"></i>
 					</button>
 
-					{/* underline */}
+					{/* aláhúz */}
 					<button onClick={() => exec("underline")}>
 						<i class="bi bi-type-underline"></i>
 					</button>
@@ -86,22 +88,22 @@ const App = () => {
 						<i class="bi bi-trash3"></i>
 					</button>
 				</div>
+
+				{/* Képfeltöltés */}
 				<div style={{ margin: "1rem" }}>
 					<label>
 						<strong>Kép beillesztése:</strong> <input type="file" accept="image/*" onChange={handleImageUpload} />
 					</label>
 				</div>
 
-				{/* ✍️ Editor */}
+				{/* Editor */}
 				<div ref={editorWrapperRef}>
 					<Editor value={html} onChange={handleHtmlChange} />
 				</div>
-
-				{/* 📷 Kép feltöltés */}
 			</div>
 
 			<div className="right">
-				{/* 👀 Előnézet */}
+				{/* HTML Előnézet */}
 				<div style={{ marginTop: "2rem" }}>
 					<h3>
 						<i class="bi bi-filetype-html"></i> HTML Előnézet:
